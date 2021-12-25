@@ -5,6 +5,8 @@ window.onload = function(){
     .catch(error => console.error("faute"))
 }
 
+// Affiche les produits pages d'accueil
+
 function insertProduct (products) {
     let items = document.getElementById("items")
     for (let i=0; i<products.length; i++) {
@@ -20,5 +22,4 @@ function insertProduct (products) {
 
 
 
-
-
+ 
