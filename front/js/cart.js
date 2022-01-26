@@ -1,13 +1,19 @@
 
 let panier = JSON.parse(localStorage.getItem("panier"))
 let cartItems = document.getElementById("cart__items")
-for (let i=0 ; i< panier.length; i++){
+
+function initiale() {
+
+    for (let i=0 ; i< panier.length; i++){   
+        fetch("http://localhost:3000/api/products/"+panier[i].id)
+        .then(response => response.json())
+        .then(response => insertProduct(response, panier[i].color, panier[i].quantity))
+        .catch(error => console.error("faute"))
+    }
     
-    fetch("http://localhost:3000/api/products/"+panier[i].id)
-    .then(response => response.json())
-    .then(response => insertProduct(response, panier[i].color, panier[i].quantity))
-    .catch(error => console.error("faute"))
+    changeQuantity()
 }
+window.onload= initiale()
 
 function insertProduct(product, color, quantity){
     console.log(product)
@@ -35,3 +41,33 @@ function insertProduct(product, color, quantity){
 }
 
 
+function changeQuantity () {
+    console.log("ok")
+    let itemQty = document.querySelectorAll(".itemQuantity")
+    console.log(itemQty)
+    for(let i = 0; i < itemQty.length; i++){
+        console.log("ok1")
+        // itemQty[i].addEventListener("input", function(){
+        //     console.log("ok2")
+        //     let changeQty = itemQty[i].value
+        //     panier[i].quantity = changeQuantity
+        //     localStorage.setItem("panier", JSON.stringify(panier))
+        //     location.reload()
+        // })
+    
+    }
+
+}
+
+
+/*
+function deleteQuantity () {
+    let removeItem = document.getElementsByClassName("deleteItem")
+    removeItem.addEventListener('change', function () {
+        window.localStorage.removeItem("quantity")
+    })
+
+    console.log(removeItem)
+}
+deleteQuantity() 
+*/
