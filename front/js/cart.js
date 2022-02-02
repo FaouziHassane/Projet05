@@ -10,6 +10,7 @@ function initiale() {
         .then(response => insertProduct(response, panier[i].color, panier[i].quantity))
         .then(response => changeQuantity())
         .then(response => deleteQuantity())
+        .then(response => getTotals())
 
         .catch(error => console.error("faute"))
     }
@@ -17,9 +18,14 @@ function initiale() {
 window.onload= initiale()
 
 // Insertion des Produits
+let a = 0;   // prix
+let b = 0;   // quantité
 
 function insertProduct(product, color, quantity){
   console.log()
+  a+=product.price*quantity;  
+  b+=parseInt(quantity);
+
   cartItems.innerHTML+= '<article class="cart__item" data-id="'+product._id+'" data-color="'+color+'">'+
   '<div class="cart__item__img">'+
     '<img src="'+product.imageUrl+'" alt="'+product.altTxt+'">'+
@@ -46,15 +52,12 @@ function insertProduct(product, color, quantity){
 
 function changeQuantity () {
   let itemQty = document.querySelectorAll(".itemQuantity")
-  console.log(itemQty)
   for(let i = 0; i < itemQty.length; i++){
       itemQty[i].addEventListener("input", function(){
-          console.log("ok2")
           let changeQty = itemQty[i].value
-          console.log(changeQty)
-          panier[i].quantity = changeQty  //changeQuantity
+          panier[i].quantity = changeQty  
           localStorage.setItem("panier", JSON.stringify(panier))
-          // location.reload()
+          location.reload()
        })
   }
 }
@@ -63,21 +66,29 @@ function changeQuantity () {
 
 function deleteQuantity () {
     let dlt = document.querySelectorAll(".deleteItem")
-    console.log(dlt)
     for(let i = 0; i < dlt.length; i++){
-      console.log("ok5")
-      dlt[i].addEventListener("click", (event) => {
-        event.preventDefault()
-        console.log(event)
+      dlt[i].addEventListener("click", () => {
+        //event.preventDefault()
+        //console.log(event)
         // enregistrer l'id et la couleur séléctionnés par le bouton supprimer
         let deleteId = panier[i].id
         let deleteColor = panier[i].color
         panier = panier.filter( (elt) => elt.id !== deleteId || elt.color !== deleteColor )
         localStorage.setItem("panier", JSON.stringify(panier))
+        location.reload()
       })
   }
 }
 
 // Récupération total quantité et prix
+
+function getTotals () {
+  // Total quantité:   
+  let totalQuantityProduct = document.getElementById("totalQuantity") 
+  totalQuantityProduct.innerHTML = b  // Affichage quantié
+  // Total prix: 
+  let totalPriceProduct = document.getElementById("totalPrice")
+  totalPriceProduct.innerHTML = a  // Affichage prix
+}
 
 
