@@ -54,10 +54,10 @@ function changeQuantity () {
   let itemQty = document.querySelectorAll(".itemQuantity")
   for(let i = 0; i < itemQty.length; i++){
       itemQty[i].addEventListener("input", function(){
-          let changeQty = itemQty[i].value
-          panier[i].quantity = changeQty  
-          localStorage.setItem("panier", JSON.stringify(panier))
-          location.reload()
+        let changeQty = itemQty[i].value
+        panier[i].quantity = changeQty  
+        localStorage.setItem("panier", JSON.stringify(panier))
+        location.reload()
        })
   }
 }
@@ -91,4 +91,135 @@ function getTotals () {
   totalPriceProduct.innerHTML = a  // Affichage prix
 }
 
+// Passer commande
+
+function form () {
+  let check = true
+  // Récupération données client
+
+  const textRegex = /^[A-Za-z\s]{5,50}$/
+  const adressRegex = /^[A-Za-z0-9\s]{5,50}$/
+  const mailRegex = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/
+
+  let firstName = document.getElementById("firstName").value
+  let lastName = document.getElementById("lastName").value
+  let adress = document.getElementById("address").value
+  let city = document.getElementById("city").value
+  let mail = document.getElementById("email").value
+
+  console.log(firstName.match(textRegex)) 
+  console.log(adress.match(adressRegex))
+  console.log(mail.match(mailRegex)) 
+
+  console.log(lastName.match(textRegex)) 
+  console.log(city.match(textRegex)) 
+
+  // Récupérations des valeurs formulaire pour les mettre au LocalStorage
+  
+  localStorage.setItem("nom", firstName)
+  localStorage.setItem("prenom", lastName)
+  localStorage.setItem("adresse", adress)
+  localStorage.setItem("ville", city)
+  localStorage.setItem("email", mail)
+
+
+  // fonction validation formulaire
+  function validateFirstName () {
+    if(firstName.match(textRegex)){
+      document.getElementById("firstNameErrorMsg").innerHTML = ''
+    } else {document.getElementById("firstNameErrorMsg").innerHTML = "Veuillez bien saisir le champ Prénom"}
+  }
+  validateFirstName()
+
+  function validateLastName () {
+    if(lastName.match(textRegex)){
+      document.getElementById("lastNameErrorMsg").innerHTML = ''
+    } else {document.getElementById("lastNameErrorMsg").innerHTML = "Veuillez bien saisir le champ Nom"}
+  }
+  validateLastName()
+
+  function validateAdress () {
+    if(adress.match(adressRegex)){
+      document.getElementById("addressErrorMsg").innerHTML = ''
+    } else {document.getElementById("addressErrorMsg").innerHTML = "Veuillez bien saisir le champ Adresse"}
+  }
+  validateAdress()
+
+  function validateCity () {
+    if(city.match(textRegex)){
+      document.getElementById("cityErrorMsg").innerHTML = ''
+    } else {document.getElementById("cityErrorMsg").innerHTML = "Veuillez bien saisir le champ Ville"}
+  }
+  validateCity()
+
+  function validateMail () {
+    if(mail.match(mailRegex)){
+      document.getElementById("emailErrorMsg").innerHTML = ''
+    } else {document.getElementById("emailErrorMsg").innerHTML = "Veuillez bien saisir le champ Email"}
+  }
+  validateMail()
+
+}
+
+// Bouton commander
+let submit = document.getElementById("order") 
+submit.addEventListener("click", function(event){
+  event.preventDefault()
+  form()
+  postForm()
+})
+
+
+// Fonction envoie données
+function postForm (){
+
+  // Mettre les valeurs formulaire dans un objet
+  let contact = {
+    prenom: localStorage.getItem("prenom"),
+    nom: localStorage.getItem("nom"),
+    adresse: localStorage.getItem("adresse"),
+    ville: localStorage.getItem("ville"),
+    email: localStorage.getItem("email")
+  }
+
+  // Mettre les valeurs formulaire et produits dans un objet
+  let sendData = {
+    panier,
+    contact
+  }
+  
+  // Send to server
+
+  let options = {
+    method: 'POST',
+    body: JSON.stringify(sendData),
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  };
+
+  fetch("http://localhost:3000/api/products/order", options)
+  
+  .then(response => response.json())
+  .then(data => {
+  localStorage.setItem('orderId', data.orderId);
+  window.location.href = 'confirmation.html?id='+ data.orderId;}); 
+  
+  // voir les résultat serveur dans la console
+  /*
+  serveur.then(async(response)=>{
+    try{
+      console.log("reponse")
+      console.log(response)
+
+      let contenu = await response.json()
+      console.log("contenu")
+      console.log(contenu)
+    } catch(e){
+      console.log(e)
+    }
+  })
+  */
+
+}
 
