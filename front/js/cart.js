@@ -175,38 +175,50 @@ function postForm (){
 
   // Mettre les valeurs formulaire dans un objet
   let contact = {
-    prenom: localStorage.getItem("prenom"),
-    nom: localStorage.getItem("nom"),
-    adresse: localStorage.getItem("adresse"),
-    ville: localStorage.getItem("ville"),
-    email: localStorage.getItem("email")
+    firstName: "test",
+    lastName: "test",
+    adress: "test",
+    city: "test",
+    email: "test@test.com"
   }
+
+ //Construction d'un array d'id depuis le local storage
+ let products = [];
+ for (let i = 0; i<panier.length;i++) {
+     products.push(panier[i].id);
+ }
+ console.log(products);
+  
 
   // Mettre les valeurs formulaire et produits dans un objet
   let sendData = {
-    panier,
-    contact
+    contact,
+    products,
   }
   
   // Send to server
 
   let options = {
     method: 'POST',
-    body: JSON.stringify(sendData),
     headers: {
-      'Content-Type': 'application/json',
-    }
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(sendData),
   };
 
-  fetch("http://localhost:3000/api/products/order", options)
+
+  let serveur = fetch("http://localhost:3000/api/products/order", options);
   
+ /*
   .then(response => response.json())
   .then(data => {
   localStorage.setItem('orderId', data.orderId);
   window.location.href = 'confirmation.html?id='+ data.orderId;}); 
+ */
   
   // voir les résultat serveur dans la console
-  /*
+  
   serveur.then(async(response)=>{
     try{
       console.log("reponse")
@@ -219,7 +231,21 @@ function postForm (){
       console.log(e)
     }
   })
-  */
+  
 
 }
 
+
+/**
+ *
+ * Expects request to contain:
+ * contact: {
+ *   firstName: string,
+ *   lastName: string,
+ *   address: string,
+ *   city: string,
+ *   email: string
+ * }
+ * products: [string] <-- array of product _id
+ *
+ */
