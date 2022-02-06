@@ -183,11 +183,14 @@ function postForm (){
   }
 
  //Construction d'un array d'id depuis le local storage
+
  let products = [];
  for (let i = 0; i<panier.length;i++) {
      products.push(panier[i].id);
  }
  console.log(products);
+
+ // orderId: orderId
   
 
   // Mettre les valeurs formulaire et produits dans un objet
@@ -207,15 +210,14 @@ function postForm (){
     body: JSON.stringify(sendData),
   };
 
-
-  let serveur = fetch("http://localhost:3000/api/products/order", options);
-  
- /*
+  let serveur = fetch("http://localhost:3000/api/products/order", options)
   .then(response => response.json())
   .then(data => {
   localStorage.setItem('orderId', data.orderId);
-  window.location.href = 'confirmation.html?id='+ data.orderId;}); 
- */
+  document.location.href = 'confirmation.html?id='+ data.orderId;
+});
+  
+
   
   // voir les résultat serveur dans la console
   
@@ -231,21 +233,5 @@ function postForm (){
       console.log(e)
     }
   })
-  
 
 }
-
-
-/**
- *
- * Expects request to contain:
- * contact: {
- *   firstName: string,
- *   lastName: string,
- *   address: string,
- *   city: string,
- *   email: string
- * }
- * products: [string] <-- array of product _id
- *
- */
