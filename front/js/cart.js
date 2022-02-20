@@ -1,29 +1,42 @@
 
+//Initialisation du local storage
 let panier = JSON.parse(localStorage.getItem("panier"))
 let cartItems = document.getElementById("cart__items")
 
-function initiale() {
+// création des expressions régulières
+const textRegex = /^[A-Za-z\s]{5,50}$/
+const adressRegex = /^[A-Za-z0-9\s]{5,50}$/
+const mailRegex = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/
 
+// Préparer la validation du formulaire
+let firstNameErreur = true
+let lastNameErreur = true
+let cityErreur = true
+let addressErreur = true
+let emailErreur = true
+
+// Récupération des produits séléctionnées
+function getProducts() {
+  if(panier != null){
     for (let i=0 ; i< panier.length; i++){   
-        fetch("http://localhost:3000/api/products/"+panier[i].id)
-        .then(response => response.json())
-        .then(response => insertProduct(response, panier[i].color, panier[i].quantity))
-        .then(response => changeQuantity())
-        .then(response => deleteQuantity())
-        .then(response => getTotals())
-
-        .catch(error => console.error("faute"))
+      fetch("http://localhost:3000/api/products/"+panier[i].id)
+      .then(response => response.json())
+      .then(response => insertCart(response, panier[i].color, panier[i].quantity))
+      .then(response => changeQuantity())
+      .then(response => deleteQuantity())
+      .then(response => getTotal())
+      .catch(error => console.error("Erreur"))
     }
+  }
 }
-window.onload= initiale()
+window.onload= getProducts()
 
-// Insertion des Produits
 let a = 0;   // prix
 let b = 0;   // quantité
 
-function insertProduct(product, color, quantity){
-  console.log()
-  a+=product.price*quantity;  
+// Insertion et affichage des Produits du panier dans la page Panier
+function insertCart(product, color, quantity){
+  a+=product.price*quantity; 
   b+=parseInt(quantity);
 
   cartItems.innerHTML+= '<article class="cart__item" data-id="'+product._id+'" data-color="'+color+'">'+
@@ -48,42 +61,38 @@ function insertProduct(product, color, quantity){
   '</div>'+
   '</article>'
 }
-// Changement quantité article
 
+// Modification quantité articles
 function changeQuantity () {
   let itemQty = document.querySelectorAll(".itemQuantity")
   for(let i = 0; i < itemQty.length; i++){
-      itemQty[i].addEventListener("input", function(){
-        let changeQty = itemQty[i].value
-        panier[i].quantity = changeQty  
-        localStorage.setItem("panier", JSON.stringify(panier))
-        location.reload()
-       })
+    itemQty[i].addEventListener("input", function(){
+      let changeQty = itemQty[i].value
+      panier[i].quantity = changeQty  
+      localStorage.setItem("panier", JSON.stringify(panier))
+      location.reload()
+    })
   }
 }
 
-// Suppression article
-
+// Suppression articles
 function deleteQuantity () {
     let dlt = document.querySelectorAll(".deleteItem")
     for(let i = 0; i < dlt.length; i++){
-      dlt[i].addEventListener("click", () => {
-        //event.preventDefault()
-        //console.log(event)
-        // enregistrer l'id et la couleur séléctionnés par le bouton supprimer
-        let deleteId = panier[i].id
-        let deleteColor = panier[i].color
-        panier = panier.filter( (elt) => elt.id !== deleteId || elt.color !== deleteColor )
-        localStorage.setItem("panier", JSON.stringify(panier))
-        location.reload()
-      })
+    dlt[i].addEventListener("click", () => {
+      // enregistrer l'id et la couleur séléctionnés par le bouton supprimer
+      let deleteId = panier[i].id
+      let deleteColor = panier[i].color
+      panier = panier.filter( (elt) => elt.id !== deleteId || elt.color !== deleteColor )
+      localStorage.setItem("panier", JSON.stringify(panier))
+      location.reload()
+    })
   }
 }
 
-// Récupération total quantité et prix
-
-function getTotals () {
-  // Total quantité:   
+// Récupération total articles et prix
+function getTotal () {
+  // Total articles:   
   let totalQuantityProduct = document.getElementById("totalQuantity") 
   totalQuantityProduct.innerHTML = b  // Affichage quantié
   // Total prix: 
@@ -91,116 +100,108 @@ function getTotals () {
   totalPriceProduct.innerHTML = a  // Affichage prix
 }
 
-// Passer commande
+// Validation Prénom
+function validateFirstName (firstName) {
+  if(firstName.match(textRegex)){
+    document.getElementById("firstNameErrorMsg").innerHTML = ''
+  } else {document.getElementById("firstNameErrorMsg").innerHTML = "Veuillez bien saisir le champ Prénom"
+  firstNameErreur = false}                            
+}
 
+// Validation Nom
+function validateLastName (lastName) {
+  if(lastName.match(textRegex)){
+    document.getElementById("lastNameErrorMsg").innerHTML = ''
+  } else {document.getElementById("lastNameErrorMsg").innerHTML = "Veuillez bien saisir le champ Nom"
+  lastNameErreur = false}
+}
+
+// Validation adresse
+function validateAdress (address) {
+  if(address.match(adressRegex)){
+    document.getElementById("addressErrorMsg").innerHTML = ''
+  } else {document.getElementById("addressErrorMsg").innerHTML = "Veuillez bien saisir le champ Adresse"
+  addressErreur = false}
+}
+
+// Validation ville
+function validateCity (city) {
+  if(city.match(textRegex)){
+    document.getElementById("cityErrorMsg").innerHTML = ''
+  } else {document.getElementById("cityErrorMsg").innerHTML = "Veuillez bien saisir le champ Ville"
+  cityErreur = false}
+}
+
+// Validation email
+function validateMail (email) {
+  if(email.match(mailRegex)){
+    document.getElementById("emailErrorMsg").innerHTML = ''
+  } else {document.getElementById("emailErrorMsg").innerHTML = "Veuillez bien saisir le champ Email"
+  emailErreur = false}
+}
+
+// Formulaire de commande
 function form () {
-  let check = true
-  // Récupération données client
 
-  const textRegex = /^[A-Za-z\s]{5,50}$/
-  const adressRegex = /^[A-Za-z0-9\s]{5,50}$/
-  const mailRegex = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/
-
+  // Récupérer les données saisies par l’utilisateur
   let firstName = document.getElementById("firstName").value
   let lastName = document.getElementById("lastName").value
-  let adress = document.getElementById("address").value
+  let address = document.getElementById("address").value
   let city = document.getElementById("city").value
-  let mail = document.getElementById("email").value
+  let email = document.getElementById("email").value
 
-  console.log(firstName.match(textRegex)) 
-  console.log(adress.match(adressRegex))
-  console.log(mail.match(mailRegex)) 
-
-  console.log(lastName.match(textRegex)) 
-  console.log(city.match(textRegex)) 
-
-  // Récupérations des valeurs formulaire pour les mettre au LocalStorage
-  
-  localStorage.setItem("nom", firstName)
-  localStorage.setItem("prenom", lastName)
-  localStorage.setItem("adresse", adress)
-  localStorage.setItem("ville", city)
-  localStorage.setItem("email", mail)
-
-
-  // fonction validation formulaire
-  function validateFirstName () {
-    if(firstName.match(textRegex)){
-      document.getElementById("firstNameErrorMsg").innerHTML = ''
-    } else {document.getElementById("firstNameErrorMsg").innerHTML = "Veuillez bien saisir le champ Prénom"}
-  }
-  validateFirstName()
-
-  function validateLastName () {
-    if(lastName.match(textRegex)){
-      document.getElementById("lastNameErrorMsg").innerHTML = ''
-    } else {document.getElementById("lastNameErrorMsg").innerHTML = "Veuillez bien saisir le champ Nom"}
-  }
-  validateLastName()
-
-  function validateAdress () {
-    if(adress.match(adressRegex)){
-      document.getElementById("addressErrorMsg").innerHTML = ''
-    } else {document.getElementById("addressErrorMsg").innerHTML = "Veuillez bien saisir le champ Adresse"}
-  }
-  validateAdress()
-
-  function validateCity () {
-    if(city.match(textRegex)){
-      document.getElementById("cityErrorMsg").innerHTML = ''
-    } else {document.getElementById("cityErrorMsg").innerHTML = "Veuillez bien saisir le champ Ville"}
-  }
-  validateCity()
-
-  function validateMail () {
-    if(mail.match(mailRegex)){
-      document.getElementById("emailErrorMsg").innerHTML = ''
-    } else {document.getElementById("emailErrorMsg").innerHTML = "Veuillez bien saisir le champ Email"}
-  }
-  validateMail()
+  // Appel fonctions analysant données saisies par l’utilisateur
+  validateFirstName(firstName)
+  validateLastName(lastName)
+  validateAdress(address)
+  validateCity(city)
+  validateMail(email)
 
 }
 
 // Bouton commander
 let submit = document.getElementById("order") 
-submit.addEventListener("click", function(event){
-  event.preventDefault()
-  form()
-  postForm()
-})
+if (submit != null) {
+  submit.addEventListener("click", function(event){
+    event.preventDefault()
+    form()
 
+    // Validation formulaire avant envoie au localstorage et serveur
+    if (firstNameErreur && lastNameErreur && cityErreur && addressErreur && emailErreur) {
+      // Envoi données au serveur 
+      postForm ()
+    }
+  })
+}
 
-// Fonction envoie données
+// Envoie données formulaire
 function postForm (){
-
-  // Mettre les valeurs formulaire dans un objet
-  let contact = {
-    firstName: "test",
-    lastName: "test",
-    adress: "test",
-    city: "test",
-    email: "test@test.com"
+  // Constitution de l'objet contact : Mise des valeurs formulaire dans l'objet 
+  // je récupère les données du formulaire dans un objet
+  let contact = { 
+    firstName: document.getElementById("firstName").value,
+    lastName: document.getElementById("lastName").value,
+    address: document.getElementById("address").value,
+    city: document.getElementById("city").value,
+    email: document.getElementById("email").value,
   }
-
- //Construction d'un array d'id depuis le local storage
-
+ 
+ // Constitution du tableau produits : id(s) du local storage pour le le back end
+  //Construction d'un array d'id depuis le local storage
  let products = [];
  for (let i = 0; i<panier.length;i++) {
-     products.push(panier[i].id);
+    for (let j=0; j<panier[i].quantity; j++){
+      products.push(panier[i].id);
+    }
  }
- console.log(products);
 
- // orderId: orderId
-  
-
-  // Mettre les valeurs formulaire et produits dans un objet
+  // Mise des valeurs formulaire et produits dans un objet
   let sendData = {
     contact,
     products,
   }
   
-  // Send to server
-
+  // Variable avec données promesse, requête POST
   let options = {
     method: 'POST',
     headers: {
@@ -210,28 +211,26 @@ function postForm (){
     body: JSON.stringify(sendData),
   };
 
-  let serveur = fetch("http://localhost:3000/api/products/order", options)
+  // Variable contenant fetch 
+   // j'envoie le formulaire + localStorage (sendFormData) 
+    // ... que j'envoie au serveur
+  let sendApi = fetch("http://localhost:3000/api/products/order", options)
   .then(response => response.json())
   .then(data => {
-  localStorage.setItem('orderId', data.orderId);
-  document.location.href = 'confirmation.html?id='+ data.orderId;
+  localStorage.setItem("orderId", data.orderId);
+  localStorage.removeItem("panier")
+  document.location.href = "confirmation.html";
 });
-  
-
-  
-  // voir les résultat serveur dans la console
-  
-  serveur.then(async(response)=>{
-    try{
-      console.log("reponse")
-      console.log(response)
-
-      let contenu = await response.json()
-      console.log("contenu")
-      console.log(contenu)
-    } catch(e){
-      console.log(e)
-    }
-  })
-
 }
+
+// Affichage id commande à la page confirmation
+function confirmation(){
+  let orId = document.getElementById("orderId");
+  if (orId != null) {
+    orId.innerHTML = localStorage.getItem("orderId");
+    console.log(localStorage.getItem("orderId"))
+    localStorage.removeItem('orderId')
+  }
+}
+confirmation()
+
