@@ -6,7 +6,7 @@ window.onload = function getProducts(){
     .catch(erreur => alert("Erreur requête."))
 }
 
-// Répartition des données dans le DOM et affichage des articles dans la page Accueil
+// Répartition des produits dans le DOM et affichage des articles dans la page Accueil
 function insertProducts (products) {
     let items = document.getElementById("items")
     for (let i=0; i<products.length; i++) {

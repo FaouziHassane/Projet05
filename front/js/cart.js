@@ -94,10 +94,10 @@ function deleteQuantity () {
 function getTotal () {
   // Total articles:   
   let totalQuantityProduct = document.getElementById("totalQuantity") 
-  totalQuantityProduct.innerHTML = b  // Affichage quantié
+  totalQuantityProduct.innerHTML = b  
   // Total prix: 
   let totalPriceProduct = document.getElementById("totalPrice")
-  totalPriceProduct.innerHTML = a  // Affichage prix
+  totalPriceProduct.innerHTML = a  
 }
 
 // Validation Prénom
@@ -156,7 +156,6 @@ function form () {
   validateAdress(address)
   validateCity(city)
   validateMail(email)
-
 }
 
 // Bouton commander
@@ -177,7 +176,6 @@ if (submit != null) {
 // Envoie données formulaire
 function postForm (){
   // Constitution de l'objet contact : Mise des valeurs formulaire dans l'objet 
-  // je récupère les données du formulaire dans un objet
   let contact = { 
     firstName: document.getElementById("firstName").value,
     lastName: document.getElementById("lastName").value,
@@ -185,8 +183,6 @@ function postForm (){
     city: document.getElementById("city").value,
     email: document.getElementById("email").value,
   }
- 
- // Constitution du tableau produits : id(s) du local storage pour le le back end
   //Construction d'un array d'id depuis le local storage
  let products = [];
  for (let i = 0; i<panier.length;i++) {
@@ -194,13 +190,11 @@ function postForm (){
       products.push(panier[i].id);
     }
  }
-
   // Mise des valeurs formulaire et produits dans un objet
   let sendData = {
     contact,
     products,
   }
-  
   // Variable avec données promesse, requête POST
   let options = {
     method: 'POST',
@@ -211,9 +205,7 @@ function postForm (){
     body: JSON.stringify(sendData),
   };
 
-  // Variable contenant fetch 
-   // j'envoie le formulaire + localStorage (sendFormData) 
-    // ... que j'envoie au serveur
+    // Envoie commande au serveur
   let sendApi = fetch("http://localhost:3000/api/products/order", options)
   .then(response => response.json())
   .then(data => {
@@ -228,7 +220,6 @@ function confirmation(){
   let orId = document.getElementById("orderId");
   if (orId != null) {
     orId.innerHTML = localStorage.getItem("orderId");
-    console.log(localStorage.getItem("orderId"))
     localStorage.removeItem('orderId')
   }
 }
